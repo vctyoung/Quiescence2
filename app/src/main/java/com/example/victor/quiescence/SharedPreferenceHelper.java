@@ -32,12 +32,56 @@ public class SharedPreferenceHelper {
         editor.apply();
 
     }
+    public void setAutoUpdate(Context context)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("update",1);
+        editor.apply();
+    }
+    public int getUpdate (Context context)
+    {
+        int temp ;
+        temp =sharedPreferences.getInt("update",0);
+        return temp;
+    }
+
+    public void setNotification(Context context)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("notice",1);
+        editor.apply();
+    }
+
+    public void setPreferRoom(String room,Context context)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("preroom",room);
+        editor.apply();
+    }
+
+    public String getPreferRoom()
+    {
+        String temp ;
+        temp =sharedPreferences.getString("preroom",null);
+        return temp;
+    }
+
+    public int getNotice ()
+    {
+        int temp ;
+        temp =sharedPreferences.getInt("notice",0);
+        return temp;
+    }
+
+
 
     public void setInstallation()
     {
         SharedPreferences.Editor editor=sharedPreferences.edit();
         editor.putInt("FirstInstall", 1);
     }
+
+
 
     //TODO: return a profile to viewer
     public String getCampus ()

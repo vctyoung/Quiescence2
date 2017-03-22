@@ -1,6 +1,8 @@
 package com.example.victor.quiescence;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -9,6 +11,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.v4.app.NotificationCompat;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -19,15 +22,26 @@ import java.net.URL;
 public class upDate extends Service {
     private  final int PERIOD=30000;
     private dataBaseHelper myDB;
+    private SharedPreferenceHelper sharedPreferenceHelper;
+    private Notification mNotification;
+    private NotificationManager mNotificationManager;
 
 
- //   public upDate() {
+    //   public upDate() {
    // }
     @Override
     public void onCreate()
     {
         super.onCreate();
         myDB= new dataBaseHelper(getApplicationContext());
+        sharedPreferenceHelper= new SharedPreferenceHelper(upDate.this);
+        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        NotificationCompat.Builder mNotification = new NotificationCompat.Builder(this).
+        setSmallIcon(R.drawable.concordia_coa).setContentTitle("The room you are looking for is quiet now!")
+                .setContentText("Sent by Quiescence").setDefaults(NotificationCompat.DEFAULT_SOUND);
+
+
     }
 
     public void  onDestroy()
@@ -60,15 +74,21 @@ public class upDate extends Service {
             //如果返现msg.what=SHOW_RESPONSE，则进行制定操作，如想进行其他操作，则在子线程里将SHOW_RESPONSE改变
             String response = (String) msg.obj;
             String[] data=response.split(" ");
-            //进行UI操作，将结果显示到界面上
+
             for (int i=2; i<data.length;)
 
             {
                 float noise = Float.parseFloat(data[i]);
                 String building= checkBuilding(data[i+1]);
                 String room=data[i+2];
-                myDB.createRoom("SGW",building,room,noise);
-               // myDB.updateRoom(room,noise);
+                if (sharedPreferenceHelper.getNotice()==1 && sharedPreferenceHelper.getPreferRoom().equals(new String( room)) && noise<=1)
+                {
+                    mNotificationManager.notify(0, mNotification);
+                }
+
+               // myDB.createRoom("SGW",building,room,noise);
+               // myDB.updateRoom(building,room,noise);
+                //myDB.
 
                 i=i+3;
             }

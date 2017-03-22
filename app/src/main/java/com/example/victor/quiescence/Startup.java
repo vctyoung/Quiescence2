@@ -67,8 +67,10 @@ public class Startup extends AppCompatActivity {
                     float noise = Float.parseFloat(data[i]);
                     String building= checkBuilding(data[i+1]);
                     String room=data[i+2];
-                    myDB.createRoom("SGW",building,room,noise);
-                    //myDB.updateRoom(room,noise);
+                   myDB.createRoom("SGW",building,room,noise);
+                  //  myDB.updateRoom(building,room,noise);
+                    myDB.addItem(building,room,noise);
+
 
                     i=i+3;
                 }

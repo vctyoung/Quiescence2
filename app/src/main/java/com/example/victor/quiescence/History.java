@@ -47,13 +47,14 @@ public class History extends AppCompatActivity {
         building =sharedPreferenceHelper.getBuilding();
         // building = intent.getStringExtra("building");
         room = sharedPreferenceHelper.getRoom();
-        if (room=="---")
+        if (room.equals(new String("---")) )
             return;
 
         getSupportActionBar().setTitle(room + " " + campus);
         myDB= new dataBaseHelper(getApplicationContext());
         logs=new ArrayList<roomLog>();
-        logs=myDB.getroomLog(room);
+       // logs=myDB.getroomLog(room);
+        logs=myDB.getTodayRoomLog(room);
 
       // logs = new ArrayList<roomLog>();
       /*  logs.add(new roomLog((float) 0, "10"));

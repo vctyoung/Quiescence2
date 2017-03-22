@@ -63,11 +63,11 @@ public class dataBaseHelper extends SQLiteOpenHelper {
             + " DATETIME" + ")";
 
     // Tag table create statement
- /*   private static final String CREATE_TABLE_SCHEDULE = "CREATE TABLE if not exists " + TABLE_SCHEDULE
-            + "(" + KEY_ID + " INTEGER PRIMARY KEY," + KEY_TITLE + " TEXT," + KEY_SLOT + " TEXT,"
-            + KEY_TIME + " DATETIME" + ")";*/
-    private static final String CREATE_TABLE_SCHEDULE = "CREATE TABLE if not exists " + TABLE_SCHEDULE
-            + "(" + KEY_ID + " INTEGER PRIMARY KEY,"  +KEY_DAY+" TEXT "+ KEY_TITLE+" TEXT "+ KEY_TIME + " DATETIME" + ")";
+   private static final String CREATE_TABLE_SCHEDULE = "CREATE TABLE if not exists " + TABLE_SCHEDULE
+            + "(" + KEY_ID + " INTEGER PRIMARY KEY," + KEY_TITLE + " TEXT," + KEY_VOLLUM + " REAL,"
+            + KEY_TIME + " DATETIME" + ")";
+  /*  private static final String CREATE_TABLE_SCHEDULE = "CREATE TABLE if not exists " + TABLE_SCHEDULE
+            + "(" + KEY_ID + " INTEGER PRIMARY KEY,"  +KEY_DAY+" TEXT "+ KEY_TITLE+" TEXT "+ KEY_TIME + " DATETIME" + ")";*/
     private static final String CREATE_TABLE_LOCATION = "CREATE TABLE " + TABLE_LOCATION
             + "(" + KEY_ID + " INTEGER PRIMARY KEY," + KEY_TITLE + " TEXT," + KEY_BUILDING + " TEXT,"
             + KEY_ROOM + " TEXT" + ")";
@@ -93,10 +93,20 @@ public class dataBaseHelper extends SQLiteOpenHelper {
         // create new tables
         onCreate(db);
     }
+    public void deleteTables() {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROOM);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SCHEDULE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCATION);
+
+        // create new tables
+       // onCreate(db);
+    }
 
 
     //@RequiresApi(api = Build.VERSION_CODES.N)
-    public long createRoom(String loc, String type, String name) {
+ /*   public long createRoom(String loc, String type, String name) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -111,13 +121,34 @@ public class dataBaseHelper extends SQLiteOpenHelper {
       /*  for (int i=0; i<course.getAssignment().size(); i++)
             createAssign(class_id,course.getAssignment().get(i));*/
 
+
+
+   /*     return class_id;
+    }*/
+    public long addItem( String type, String name, float noise) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        ContentValues values = new ContentValues();
+        values.put(KEY_TITLE, name);
+        values.put(KEY_VOLLUM, noise);
+
+        values.put(KEY_TIME, dateFormat.getDateTimeInstance().format(new Date()));
+
+        // insert row
+        long class_id = db.insert(TABLE_SCHEDULE, null, values);
+      /*  for (int i=0; i<course.getAssignment().size(); i++)
+            createAssign(class_id,course.getAssignment().get(i));*/
+
+
+
         return class_id;
     }
 
     public long createRoom(String loc, String type, String name, float noise) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ContentValues values = new ContentValues();
         values.put(KEY_TITLE, name);
         values.put(KEY_VOLLUM, noise);
@@ -131,16 +162,27 @@ public class dataBaseHelper extends SQLiteOpenHelper {
 
         return class_id;
     }
-    public int updateRoom(String room,float noise ) {
+    public int updateRoom(String building,String room,float noise ) {
         SQLiteDatabase db = this.getWritableDatabase();
-        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String selectQuery = "SELECT * FROM " + TABLE_ROOM +" WHERE " + KEY_TITLE + " = " + "?" ;
+
+        Cursor c = db.rawQuery( selectQuery, new String[]{room});
+
+        if (c.getCount()<=0)
+            return (int) createRoom("SGW",building,room,noise);
+
 
         ContentValues values = new ContentValues();
         values.put(KEY_VOLLUM, noise);
+        values.put(KEY_BUILDING,building);
         values.put(KEY_TIME, dateFormat.getDateTimeInstance().format(new Date()) );
 
         // updating row
-        return db.update(TABLE_ROOM, values, KEY_ROOM + " = ?", new String[] { room });
+       // return db.update(TABLE_ROOM, values, KEY_ID+ " = 1", null);
+
+        return db.update(TABLE_ROOM, values, String.format("%s = ?", KEY_TITLE), new String[]{room});
+      //  return db.update(TABLE_ROOM, values, KEY_ROOM + " =?", new String[] { room });
     }
 
     public long addLocation(String loc, String type, String name) {
@@ -157,7 +199,7 @@ public class dataBaseHelper extends SQLiteOpenHelper {
     public long addTime() {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         values.put(KEY_TIME, dateFormat.getDateTimeInstance().format(new Date()));
         ;
         long id = db.insert(TABLE_SCHEDULE, null, values);
@@ -224,7 +266,7 @@ public class dataBaseHelper extends SQLiteOpenHelper {
     public ArrayList<roomLog> getroomLog(String room)
     {
         ArrayList<roomLog> list =new ArrayList<>();
-        String selectQuery = "SELECT * FROM " + TABLE_ROOM+" WHERE " + KEY_TITLE + " = ?"  ;
+        String selectQuery = "SELECT * FROM " + TABLE_SCHEDULE+" WHERE " + KEY_TITLE + " = ?"  ;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery( selectQuery, new String[]{room});
@@ -233,7 +275,30 @@ public class dataBaseHelper extends SQLiteOpenHelper {
                 // adding to assignment list
                 //temp=c.getString(c.getColumnIndex(KEY_TIME));
 
-                list.add(new roomLog(c.getInt(c.getColumnIndex(KEY_VOLLUM)),c.getString(c.getColumnIndex(KEY_TIME))));
+                list.add(new roomLog(c.getFloat(c.getColumnIndex(KEY_VOLLUM)),c.getString(c.getColumnIndex(KEY_TIME))));
+            } while (c.moveToNext());
+        }
+        c.close();
+
+        if(list.size()==0)
+            list.add(new roomLog(0,"--"));
+        return list;
+    }
+
+    public ArrayList<roomLog> getTodayRoomLog(String room)
+    {
+        ArrayList<roomLog> list =new ArrayList<>();
+
+        String selectQuery = "SELECT * FROM " + TABLE_SCHEDULE+" WHERE " + KEY_TITLE + " = ?" +" AND "+ KEY_TIME+" >=date('now', 'start of day')" ;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery( selectQuery, new String[]{room});
+        if (c.moveToFirst()) {
+            do {
+                // adding to assignment list
+                //temp=c.getString(c.getColumnIndex(KEY_TIME));
+
+                list.add(new roomLog(c.getFloat(c.getColumnIndex(KEY_VOLLUM)),c.getString(c.getColumnIndex(KEY_TIME))));
             } while (c.moveToNext());
         }
         c.close();

@@ -68,11 +68,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
+
+       String temp=null;
+
+        if ( rooms.get(position).getLevel()==0)
+            temp=" VERY QUIET";
+        else
+           temp="NOISY";
         final ViewHolder vh = (ViewHolder) holder;
         //   vh.getPicture().setImageResource(models.get(position).getPicture());
         vh.getTitle().setText(rooms.get(position).getName());
         vh.itemView.setTag(rooms.get(position).getName());
-        vh.getText().setText("Noise"+" "+"level:"+rooms.get(position).getLevel());
+        vh.getText().setText("Noise"+" "+"level:"+temp);
         vh.itemView.setClickable(true);
         //vh.itemView.setOnClickListener(mOnItemClickListener);
 
