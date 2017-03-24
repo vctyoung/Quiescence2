@@ -136,13 +136,10 @@ public class dataBaseHelper extends SQLiteOpenHelper {
         values.put(KEY_TIME, dateFormat.getDateTimeInstance().format(new Date()));
 
         // insert row
-        long class_id = db.insert(TABLE_SCHEDULE, null, values);
+        return db.insert(TABLE_SCHEDULE, null, values);
       /*  for (int i=0; i<course.getAssignment().size(); i++)
             createAssign(class_id,course.getAssignment().get(i));*/
 
-
-
-        return class_id;
     }
 
     public long createRoom(String loc, String type, String name, float noise) {
@@ -239,7 +236,7 @@ public class dataBaseHelper extends SQLiteOpenHelper {
     public ArrayList<String> roomList(String building)
     {
         ArrayList<String> list =new ArrayList<>();
-        String selectQuery = "SELECT  TITLE FROM " + TABLE_LOCATION+" WHERE "
+    /*    String selectQuery = "SELECT  TITLE FROM " + TABLE_LOCATION+" WHERE "
                 + KEY_BUILDING + " == " + building ;
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -255,7 +252,7 @@ public class dataBaseHelper extends SQLiteOpenHelper {
 
             } while (c.moveToNext());
         }
-        c.close();
+        c.close();*/
 
         if(list.size()==0)
             list.add(new String("--"));

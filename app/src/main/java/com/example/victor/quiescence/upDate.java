@@ -7,6 +7,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -87,7 +89,7 @@ public class upDate extends Service {
                 }
 
                // myDB.createRoom("SGW",building,room,noise);
-               // myDB.updateRoom(building,room,noise);
+                myDB.updateRoom(building,room,noise);
                 //myDB.
 
                 i=i+3;
@@ -98,6 +100,7 @@ public class upDate extends Service {
     };
     private void sendRequestWithHttpURLConnection(){
         String line=null;//开启线程来发起网络请求
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -152,6 +155,16 @@ public class upDate extends Service {
         }
 
         return buidling;
+    }
+    private static boolean isWifi(Context mContext) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) mContext
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetInfo != null
+                && activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+            return true;
+        }
+        return false;
     }
 
 }

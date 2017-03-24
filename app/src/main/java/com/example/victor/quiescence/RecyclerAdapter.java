@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
     private ArrayList<Room> rooms;
     private Context context;
     private OnItemClickListener mOnItemClickListener;
+
     //private  String[]  names;
 
     public RecyclerAdapter(Context context, ArrayList<Room> rooms){
@@ -69,7 +71,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
 
-       String temp=null;
+       String temp;
 
         if ( rooms.get(position).getLevel()==0)
             temp=" VERY QUIET";
@@ -88,12 +90,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
             vh.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mOnItemClickListener.onItemClick(vh.itemView,position);
+                   mOnItemClickListener.onItemClick(vh.itemView,position);
 
-                    //    Toast.makeText(context,"fdfdf"+v.getTag(),Toast.LENGTH_SHORT).show();
+                   //    Toast.makeText(context,"fdfdf"+v.getTag(),Toast.LENGTH_SHORT).show();
                 }
             });
         }
+
     }
 
     @Override
@@ -109,6 +112,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
     public void setOnItemClickListener(OnItemClickListener mOnItemClickListener){
         this.mOnItemClickListener = mOnItemClickListener;
     }
+
 
 
 }

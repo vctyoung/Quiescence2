@@ -34,17 +34,6 @@ public class MainActivity extends AppCompatActivity {
         gridView = (GridView) findViewById(R.id.gridview1);
         SimpleAdper adapter = new SimpleAdper(names, pics, this);
         gridView.setAdapter(adapter);
-        try {
-            ///String data=connectServor.readParse();
-             connectServor.sendRequestWithHttpURLConnection();
-         //   Toast.makeText(MainActivity.this, data,Toast.LENGTH_SHORT).show();
-
-        } catch ( Exception e)
-        {
-            Log.e("MainActivity", Log.getStackTraceString(e));
-            Toast.makeText(MainActivity.this, "fff",Toast.LENGTH_SHORT).show();
-        } ;
-        connectServor.sendRequestWithHttpURLConnection();
 
        // Toast.makeText(MainActivity.this, data,Toast.LENGTH_SHORT).show();
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

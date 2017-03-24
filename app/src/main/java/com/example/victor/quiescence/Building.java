@@ -1,8 +1,10 @@
 package com.example.victor.quiescence;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,6 +24,7 @@ public class Building extends AppCompatActivity {
     private String campus;
     private String building;
     private SharedPreferenceHelper sharedPreferenceHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +82,18 @@ public class Building extends AppCompatActivity {
 
             }
         });
+      /* recyclerAdapter.setOnLongItemClickListener(new Adapter.OnLongItemClickListener() {
+            @Override
+            public void onLongItemClick(View view, int position) {
+                String s = datas.get(position);
+                Toast.makeText(getApplicationContext(), s + "---长按",                                                                   Toast.LENGTH_SHORT).show();
+            }
+        });*/
+
+
     }
+
+
 
 
 }

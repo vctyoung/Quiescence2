@@ -18,6 +18,7 @@ public class Startup extends AppCompatActivity {
 
     private Handler handler = new Handler();
     dataBaseHelper myDB= new dataBaseHelper(Startup.this);
+    private Intent serviceIntent;
 
 
     @Override
@@ -28,8 +29,10 @@ public class Startup extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_startup);
+        serviceIntent = new Intent(Startup.this, upDate.class);
+        startService(serviceIntent);
 
-        sendRequestWithHttpURLConnection();
+       // sendRequestWithHttpURLConnection();
        /* try {
             String data=connectServor.readParse();
 
