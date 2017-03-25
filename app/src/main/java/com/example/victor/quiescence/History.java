@@ -29,6 +29,7 @@ import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -125,13 +126,19 @@ public class History extends AppCompatActivity {
             public void onDateSet(DatePicker view, int year, int monthOfYear,
                                   int dayOfMonth) {
                 mYear = year;
-                mMonth = monthOfYear;
+                mMonth = monthOfYear+1;
                 mDay = dayOfMonth;
+                logs=myDB.getRoomLog(room,mYear,mMonth,mDay);
+                drawChart();
 
             }
         };
        private ArrayList<String> setXAxisValues() {
             ArrayList<String> xVals = new ArrayList<String>();
+
+
+
+           //Date date = null; //初始化date
 
             for (int i=0;i<logs.size();i++)
             {
@@ -156,12 +163,12 @@ public class History extends AppCompatActivity {
         chart.setTouchEnabled(true);
 
 
-        LimitLine upper_limit = new LimitLine(4f, "Upper Limit");
+        LimitLine upper_limit = new LimitLine(2f, "Upper Limit");
         upper_limit.setLineWidth(1f);
         //  upper_limit.enableDashedLine(10f, 10f, 0f);
         upper_limit.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         upper_limit.setTextSize(10f);
-        LimitLine lower_limit = new LimitLine(1f, "Above is noisy.");
+        LimitLine lower_limit = new LimitLine(0.5f, "Above is noisy.");
         lower_limit.setLineWidth(4f);
         lower_limit.enableDashedLine(10f, 10f, 0f);
         lower_limit.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
@@ -171,6 +178,7 @@ public class History extends AppCompatActivity {
         XAxis axis=chart.getXAxis();
         axis.setAvoidFirstLastClipping(true);
         axis.setDrawLabels(true);
+        axis.setDrawAxisLine(true);
         axis.setEnabled(true);
 
         leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
@@ -189,6 +197,7 @@ public class History extends AppCompatActivity {
         chart.setTouchEnabled(true);
 
         chart.animateX(2500, Easing.EasingOption.EaseInOutQuart);
+        chart.notifyDataSetChanged();
 
         //  dont forget to refresh the drawing
         chart.invalidate();
@@ -212,7 +221,7 @@ public class History extends AppCompatActivity {
             LineDataSet set1;
 
             // create a dataset and give it a type
-            set1 = new LineDataSet(yVals, "Today's Data");
+            set1 = new LineDataSet(yVals, " Data of "+ mYear+"/"+mMonth+"/"+mDay);
 
 
             set1.setFillAlpha(110);
@@ -228,12 +237,12 @@ public class History extends AppCompatActivity {
             set1.setDrawCircleHole(false);
             set1.setValueTextSize(12f);
             set1.setDrawFilled(true);
-
             ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
             dataSets.add(set1); // add the datasets
 
             // create a data object with the datasets
             LineData data = new LineData( dataSets);
+
 
             // set data
             chart.setData(data);

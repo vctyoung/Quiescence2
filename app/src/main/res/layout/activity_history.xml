@@ -30,4 +30,13 @@
         android:id="@+id/fab"
         app:backgroundTint="@android:color/transparent" />
 
+    <TextView
+        android:text='"1" means very noisy, "0" means very quiet.'
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="7dp"
+        android:id="@+id/textView"
+        android:layout_above="@+id/fab"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>

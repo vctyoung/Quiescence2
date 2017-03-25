@@ -3,6 +3,7 @@ package com.example.victor.quiescence;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +24,9 @@ public class Building extends AppCompatActivity {
     private RecyclerView recycleListView;
     private String campus;
     private String building;
+    static private int option;
     private SharedPreferenceHelper sharedPreferenceHelper;
+    private AlertDialog alertDialog2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,14 +67,16 @@ public class Building extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-        rooms= myDB.getRooms(building);
+        rooms= myDB.getRooms(building,1);
         recycleListView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(Building.this);
 
 
         recycleListView.setLayoutManager(layoutManager);
         recyclerAdapter= new RecyclerAdapter(Building.this,rooms);
+        recycleListView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recycleListView.setAdapter(recyclerAdapter);
+
         recyclerAdapter.setOnItemClickListener(new RecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -82,16 +87,78 @@ public class Building extends AppCompatActivity {
 
             }
         });
-      /* recyclerAdapter.setOnLongItemClickListener(new Adapter.OnLongItemClickListener() {
+        recyclerAdapter.setOnItemLongClickListener(new RecyclerAdapter.OnItemLongClickListener() {
             @Override
-            public void onLongItemClick(View view, int position) {
-                String s = datas.get(position);
-                Toast.makeText(getApplicationContext(), s + "---长按",                                                                   Toast.LENGTH_SHORT).show();
+            public void onItemLongClick(View view, int position) {
+                showSingleAlertDialog(view, view.getTag().toString());
+
             }
-        });*/
+        });
 
 
     }
+    public void showSingleAlertDialog(final View view, String room){
+
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+        alertBuilder.setTitle("Choose one option");
+        final String[] items;
+        final String currentRoom =room;
+
+       items = new String[] {" Get further notification ","Show more Information"};
+
+
+        alertBuilder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface arg0, int index) {
+              option =index;//Toast.makeText(MainActivity.this, items[index], Toast.LENGTH_SHORT).show();
+            }
+        });
+        alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface arg0, int arg1) {
+                //Intent intent =new Intent(MainActivity.this,Building.class);
+
+                alertDialog2.dismiss();
+                switch (option) {
+                    case 0:
+                        getNotice(currentRoom);
+                        Snackbar.make(view, "Get the further notice of  " + currentRoom, Snackbar.LENGTH_INDEFINITE).show();
+                        break;
+                    case 1:
+                        showDescription();
+                        Snackbar.make(view, "More details of " + currentRoom, Snackbar.LENGTH_INDEFINITE).show();
+
+                }
+
+
+
+            }
+        });
+        alertBuilder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface arg0, int arg1) {
+
+
+                alertDialog2.dismiss();
+            }
+        });
+        alertDialog2 = alertBuilder.create();
+        alertDialog2.show();
+    }
+
+    public  void getNotice (String room)
+    {
+
+    }
+
+    public void showDescription()
+    {
+
+    }
+
 
 
 

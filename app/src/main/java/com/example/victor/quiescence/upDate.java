@@ -29,8 +29,7 @@ public class upDate extends Service {
     private NotificationManager mNotificationManager;
 
 
-    //   public upDate() {
-   // }
+
     @Override
     public void onCreate()
     {
@@ -90,7 +89,7 @@ public class upDate extends Service {
 
                // myDB.createRoom("SGW",building,room,noise);
                 myDB.updateRoom(building,room,noise);
-                //myDB.
+                myDB.addItem(building,room,noise);
 
                 i=i+3;
             }

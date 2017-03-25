@@ -32,16 +32,30 @@ public class SharedPreferenceHelper {
         editor.apply();
 
     }
-    public void setAutoUpdate(Context context)
+    public void setAutoUpdate(int i)
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt("update",1);
+        editor.putInt("update",i);
         editor.apply();
     }
     public int getUpdate (Context context)
     {
         int temp ;
         temp =sharedPreferences.getInt("update",0);
+        return temp;
+    }
+
+    public void setReturnAll(int i)
+    {
+        SharedPreferences.Editor editor =sharedPreferences.edit();
+        editor.putInt("allrooms",i);
+        editor.apply();
+    }
+
+    public int getAllRoom( )
+    {
+        int temp ;
+        temp =sharedPreferences.getInt("allrooms",1);
         return temp;
     }
 

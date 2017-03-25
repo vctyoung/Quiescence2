@@ -175,6 +175,7 @@ public class dataBaseHelper extends SQLiteOpenHelper {
         values.put(KEY_BUILDING,building);
         values.put(KEY_TIME, dateFormat.getDateTimeInstance().format(new Date()) );
 
+
         // updating row
        // return db.update(TABLE_ROOM, values, KEY_ID+ " = 1", null);
 
@@ -203,7 +204,7 @@ public class dataBaseHelper extends SQLiteOpenHelper {
         return id;
 
     }
-    public ArrayList<Room> getRooms(String location)
+    public ArrayList<Room> getRooms(String location, int noise)
     {
         ArrayList < Room> quietRooms =new ArrayList<>();
         ArrayList<String> roomList=new ArrayList<>();
@@ -221,6 +222,7 @@ public class dataBaseHelper extends SQLiteOpenHelper {
 
         if (c.moveToFirst()) {
             do {
+                if (c.getFloat(c.getColumnIndex(KEY_VOLLUM))<=noise)
                 quietRooms.add(new Room(c.getString(c.getColumnIndex(KEY_TITLE)), (int) c.getFloat(c.getColumnIndex(KEY_VOLLUM))));
                // quietRooms.add(new Room(c.getString(c.getColumnIndex(KEY_TITLE)), (int) c.getFloat(c.getColumnIndex(KEY_VOLLUM))));
                 // temp="";
@@ -282,19 +284,33 @@ public class dataBaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    public ArrayList<roomLog> getTodayRoomLog(String room)
+    public ArrayList<roomLog> getRoomLog(String room,int year, int month, int day)
     {
         ArrayList<roomLog> list =new ArrayList<>();
+        String temp="2017-";
+      //  month++;
+        if (month<10)
+            temp=temp+"0"+month+"-";
+        else
+        temp= temp+month;
+        if (month<10)
+            temp=temp+"0"+day;
+        else
+            temp= temp+day;
+        String start = temp+ " 08:00:00";
+        String end =temp+" 23:00:00";
 
-        String selectQuery = "SELECT * FROM " + TABLE_SCHEDULE+" WHERE " + KEY_TITLE + " = ?" +" AND "+ KEY_TIME+" >=date('now', 'start of day')" ;
+
+        String selectQuery = "SELECT * FROM " + TABLE_SCHEDULE+" WHERE " +
+        "datetime ("+KEY_TIME+")>=datetime('"+ start+"') and datetime("+KEY_TIME+")<datetime('"+end+"')";
+
+        /*        String selectQuery = "SELECT * FROM " + TABLE_SCHEDULE+" WHERE " + KEY_TITLE + " = ?" +" AND "+
+                KEY_TIME+" BETWEEN "+"?" + " AND "+"?";*/
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery( selectQuery, new String[]{room});
-        if (c.moveToFirst()) {
+        Cursor c = db.rawQuery( selectQuery, new String[]{start,end});
+      if (c.moveToFirst()) {
             do {
-                // adding to assignment list
-                //temp=c.getString(c.getColumnIndex(KEY_TIME));
-
                 list.add(new roomLog(c.getFloat(c.getColumnIndex(KEY_VOLLUM)),c.getString(c.getColumnIndex(KEY_TIME))));
             } while (c.moveToNext());
         }

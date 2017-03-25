@@ -25,6 +25,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
     private ArrayList<Room> rooms;
     private Context context;
     private OnItemClickListener mOnItemClickListener;
+    private OnItemLongClickListener mOnItemLongClickListener;
+
 
     //private  String[]  names;
 
@@ -92,7 +94,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
                 public void onClick(View v) {
                    mOnItemClickListener.onItemClick(vh.itemView,position);
 
-                   //    Toast.makeText(context,"fdfdf"+v.getTag(),Toast.LENGTH_SHORT).show();
+                   }
+            });
+        }
+        if(mOnItemLongClickListener != null){
+            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    int position = vh.getLayoutPosition();
+                    mOnItemLongClickListener.onItemLongClick(vh.itemView,position);
+                    //返回true 表示消耗了事件 事件不会继续传递
+                    return true;
                 }
             });
         }
@@ -105,12 +117,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
     }
 
 
-    public static interface OnItemClickListener{
+    public  interface OnItemClickListener{
         void onItemClick(View view, int position);
+    }
+
+    public interface OnItemLongClickListener{
+        void onItemLongClick(View view,int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener mOnItemClickListener){
         this.mOnItemClickListener = mOnItemClickListener;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener mOnItemLongClickListener) {
+        this.mOnItemLongClickListener = mOnItemLongClickListener;
     }
 
 
