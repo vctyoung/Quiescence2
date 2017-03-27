@@ -4,17 +4,22 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.DatePicker;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.Description;
@@ -23,6 +28,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.ChartTouchListener;
@@ -31,8 +37,12 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class History extends AppCompatActivity {
 
@@ -47,14 +57,18 @@ public class History extends AppCompatActivity {
     int mYear, mMonth, mDay;
     FloatingActionButton fab;
      final int DATE_DIALOG = 1;
+    private FloatingActionButton back;
+    private static  String[] ylabel= {"Quite","Noise"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_history);
-
         sharedPreferenceHelper = new SharedPreferenceHelper(History.this);
         todayStart = Calendar.getInstance();
         fab = (FloatingActionButton) findViewById(R.id.fab);
+        back = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -62,8 +76,15 @@ public class History extends AppCompatActivity {
                 showDialog(DATE_DIALOG);
             }
         });
+        back.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         mYear = todayStart.get(Calendar.YEAR);
-        mMonth = todayStart.get(Calendar.MONTH);
+        mMonth = todayStart.get(Calendar.MONTH)+1;
         mDay = todayStart.get(Calendar.DAY_OF_MONTH);
 
         campus = sharedPreferenceHelper.getCampus();
@@ -73,20 +94,15 @@ public class History extends AppCompatActivity {
         if (room.equals(new String("---")))
             return;
 
-        getSupportActionBar().setTitle(room + " " + campus);
+       getSupportActionBar().setTitle(room + " " + campus);
         myDB = new dataBaseHelper(getApplicationContext());
         logs = new ArrayList<roomLog>();
-        // logs=myDB.getroomLog(room);
-        logs = myDB.getroomLog(room);
-
-        // logs = new ArrayList<roomLog>();
-      /*  logs.add(new roomLog((float) 0, "10"));
-        logs.add(new roomLog((float) 0, "16"));
-        logs.add(new roomLog((float) 0, "20"));
-        logs.add(new roomLog((float) 0, "30"));*/
-        // logs.add(new roomLog( 0, room));
+        logs=myDB.getRoomLog(room,mYear,mMonth,mDay);
 
         chart = (LineChart) findViewById(R.id.chart);
+        chart.setDoubleTapToZoomEnabled(true);
+        chart.setVisibleXRangeMaximum(15);
+       // chart.On
 
         drawChart();
     }
@@ -105,7 +121,7 @@ public class History extends AppCompatActivity {
                 datePicker.setMinDate(minCalendar.getTimeInMillis());//添加范围的最小值
 
                 Calendar maxCalendar = Calendar.getInstance();
-               // maxCalendar.add(Calendar.YEAR, 2);//设置年的范围（今年是2016，第二个参数是2则，datepicker范围为2016-2018）
+
                 datePicker.setMaxDate(maxCalendar.getTimeInMillis());//添加范围的最小值
 
 
@@ -113,12 +129,6 @@ public class History extends AppCompatActivity {
         }
         return null;
     }
-
-
-        /**
-         * 设置日期 利用StringBuffer追加
-         */
-
 
         private DatePickerDialog.OnDateSetListener mdateListener = new DatePickerDialog.OnDateSetListener() {
 
@@ -129,6 +139,7 @@ public class History extends AppCompatActivity {
                 mMonth = monthOfYear+1;
                 mDay = dayOfMonth;
                 logs=myDB.getRoomLog(room,mYear,mMonth,mDay);
+                Log.i("dar", "size="+ logs.size());
                 drawChart();
 
             }
@@ -139,13 +150,15 @@ public class History extends AppCompatActivity {
 
 
            //Date date = null; //初始化date
+           String temp;
 
             for (int i=0;i<logs.size();i++)
             {
+
                 xVals.add(logs.get(i).hours);
             }
             if (logs.size()==0)
-                xVals.add("10");
+                xVals.add("0");
 
             return xVals;
         }
@@ -157,7 +170,9 @@ public class History extends AppCompatActivity {
         Legend lgd = chart.getLegend();
         lgd.setForm(Legend.LegendForm.LINE);
         Description dec=new Description();
-        dec.setText("History of"+ room);
+        chart.setDragEnabled(true);
+        chart.setScaleEnabled(true);
+        dec.setText("History of "+ room);
         chart.setDescription(dec);
         // chart.setNoDataTextDescription("You need to provide data for the chart.");
         chart.setTouchEnabled(true);
@@ -180,15 +195,32 @@ public class History extends AppCompatActivity {
         axis.setDrawLabels(true);
         axis.setDrawAxisLine(true);
         axis.setEnabled(true);
+        axis.setGranularity(1f);
+        Toast.makeText(History.this,"Start from:"+logs.get(0).hours,Toast.LENGTH_LONG).show();
+        axis.setValueFormatter(new IAxisValueFormatter() {
+
+            private SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm");
+            long start = stringToLong(logs.get(0).hours);
+
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                //Log.i("value", "is:"+value);
+                long start = stringToLong(logs.get(0).hours);
+              //  long millis = TimeUnit.DAYS.toMillis((long) value);
+              //  Log.i("value", "is:"+value+"VVV"+millis);
+                return mFormat.format(new Date(((long) value)+start));
+            }
+        });
 
         leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
         leftAxis.addLimitLine(upper_limit);
         leftAxis.addLimitLine(lower_limit);
-        leftAxis.setAxisMaxValue(4f);
-        leftAxis.setAxisMinValue(0f);
+        leftAxis.setAxisMaxValue(2f);
+        leftAxis.setAxisMinValue(-0.5f);
         //leftAxis.setYOffset(20f);
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
         leftAxis.setDrawZeroLine(false);
+        leftAxis.setDrawLabels(true);
 
         // limit lines are drawn behind data (and not on top)
         leftAxis.setDrawLimitLinesBehindData(true);
@@ -204,9 +236,17 @@ public class History extends AppCompatActivity {
     }
 
         private ArrayList<Entry> setYAxisValues(){
+            SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+              // long start= stringToLong(mYear+"-"+mMonth+"-"+mDay+" 08:00:00");
+            long start = stringToLong(logs.get(0).hours);
+
             ArrayList<Entry> yVals = new ArrayList<Entry>();
             for (int i=0;i<logs.size();i++)
-                yVals.add(new Entry(i, logs.get(i).level));
+            {
+
+                yVals.add(new Entry(stringToLong(logs.get(i).hours)-start, logs.get(i).level));
+            }
             if (yVals.size()==0)
                 yVals.add(new Entry(0,0));
 
@@ -233,10 +273,11 @@ public class History extends AppCompatActivity {
             set1.setColor(Color.BLUE);
             set1.setCircleColor(Color.BLUE);
             set1.setLineWidth(1f);
-            set1.setCircleRadius(4f);
+            set1.setCircleRadius(2f);
             set1.setDrawCircleHole(false);
             set1.setValueTextSize(12f);
-            set1.setDrawFilled(true);
+            set1.setDrawFilled(false);
+            set1.setDrawValues(false);
             ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
             dataSets.add(set1); // add the datasets
 
@@ -280,7 +321,7 @@ public class History extends AppCompatActivity {
 
    // @Override
     public void onChartSingleTapped(MotionEvent me) {
-        Log.i("SingleTap", "Chart single-tapped.");
+        drawChart();Log.i("SingleTap", "Chart single-tapped.");
     }
 
    // @Override
@@ -313,6 +354,7 @@ public class History extends AppCompatActivity {
    }
 
 
+
     public void onNothingSelected() {
         Log.i("Nothing selected", "Nothing selected.");
     }
@@ -325,9 +367,17 @@ public class History extends AppCompatActivity {
         return todayStart.getTime().getTime();
     }
 
+    public  long stringToLong(String strTime)
+          //  throws ParseException
+    {
 
-
-
-
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date date = formatter.parse(strTime);
+            return date.getTime();
+        } catch (ParseException e) {
+            return 0;
+        }
+    }
 
 }

@@ -1,7 +1,13 @@
 package com.example.victor.quiescence;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Handler;
+import android.provider.ContactsContract;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Toast;
@@ -22,7 +29,10 @@ public class MainActivity extends AppCompatActivity {
     private Picture campus;
     static private String building;
     private AlertDialog alertDialog2;
+    private AlertDialog warning;
     private SharedPreferenceHelper sharedPreferenceHelper;
+    FloatingActionButton fab;
+    ImageView setting;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,8 +42,19 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Choose Your Campus") ;
         //getSupportActionBar().setLogo(R.drawable.concordia_coa);
         gridView = (GridView) findViewById(R.id.gridview1);
+        setting= (ImageView) findViewById(R.id.imageView);
         SimpleAdper adapter = new SimpleAdper(names, pics, this);
         gridView.setAdapter(adapter);
+       // fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+        setting.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent =new Intent(MainActivity.this,Setting.class);
+
+                startActivity(intent);
+            }
+        });
 
        // Toast.makeText(MainActivity.this, data,Toast.LENGTH_SHORT).show();
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -44,6 +65,19 @@ public class MainActivity extends AppCompatActivity {
                 //  startActivity(intent);
             }
         });
+
+        if (sharedPreferenceHelper.getFirstInstallation()) {
+            sharedPreferenceHelper.setInstallation();
+            Intent intent = new Intent(this, Setting.class);
+            startActivity(intent);}
+
+        if (isWifi(this) || sharedPreferenceHelper.getUpdate()==0)
+        {
+            dialog2_give_content();
+            delay_operation(5000);
+        }
+
+
     }
 
 
@@ -89,7 +123,52 @@ public class MainActivity extends AppCompatActivity {
         alertDialog2 = alertBuilder.create();
         alertDialog2.show();
     }
+    private static boolean isWifi(Context mContext) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) mContext
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetInfo != null
+                && activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+            return true;
+        }
+        return false;
+    }
 
+    public void dialog2_give_content( )
+    {
+
+        if (sharedPreferenceHelper.getUpdate()==0)
+        {
+            warning= new AlertDialog.Builder(this).setTitle("Oops").setMessage(" The information is not updated because you disable the autoupdate!")
+                    .setPositiveButton("Endable Update！",new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int which)
+                        {//进入设置页面
+                            Intent intent2=new Intent();
+                            intent2.setClass(MainActivity.this, Setting.class);
+                            startActivity(intent2);
+                        }
+                    })
+                    .setNegativeButton("",null).create();
+        }
+        else
+        {
+            warning= new AlertDialog.Builder(this).setTitle("Oops").setMessage(" The information is not updated because no WIFI connection!")
+                    .setNegativeButton("",null).create();
+        }
+        warning.show();
+
+    }
+    public void delay_operation(long time)
+    {
+        new Handler().postDelayed(new Runnable()
+        {
+            public void run()
+            {
+                warning.dismiss();//隐藏对话框
+            }
+        }, time);
+    }
 
 
 

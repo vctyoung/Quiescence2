@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Calendar;
 
 public class upDate extends Service {
     private  final int PERIOD=30000;
@@ -27,6 +28,7 @@ public class upDate extends Service {
     private SharedPreferenceHelper sharedPreferenceHelper;
     private Notification mNotification;
     private NotificationManager mNotificationManager;
+    private Calendar time;
 
 
 
@@ -36,11 +38,7 @@ public class upDate extends Service {
         super.onCreate();
         myDB= new dataBaseHelper(getApplicationContext());
         sharedPreferenceHelper= new SharedPreferenceHelper(upDate.this);
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        NotificationCompat.Builder mNotification = new NotificationCompat.Builder(this).
-        setSmallIcon(R.drawable.concordia_coa).setContentTitle("The room you are looking for is quiet now!")
-                .setContentText("Sent by Quiescence").setDefaults(NotificationCompat.DEFAULT_SOUND);
 
 
     }
@@ -54,11 +52,32 @@ public class upDate extends Service {
     {
         AlarmManager manager=(AlarmManager) getSystemService(Service.ALARM_SERVICE);
         long period= 5*1000*60;
-        long nextTime= SystemClock.elapsedRealtime()+ period;
+        long night=7200000;
+        time=Calendar.getInstance();
+
+        long nextTime;
+        if (time.HOUR_OF_DAY<23 && time.HOUR_OF_DAY>=7)
+            nextTime=SystemClock.elapsedRealtime()+ period;
+        else
+        {
+            nextTime=SystemClock.elapsedRealtime()+ night;
+        }
+
+
+        //<23? SystemClock.elapsedRealtime()+ period:SystemClock.elapsedRealtime()+ night;
         Intent refresh= new Intent( this, MyReceiver.class);
         PendingIntent pendingIntent= PendingIntent.getBroadcast(this,0,refresh,0);
         sendRequestWithHttpURLConnection();
         manager.set(manager.ELAPSED_REALTIME_WAKEUP, nextTime,pendingIntent);
+        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+
+         mNotification = new Notification.Builder(this).
+                setSmallIcon(R.drawable.concordia_coa).setContentTitle("The room you are looking for is quiet now!")
+                .setContentText("Sent by Quiescence").setDefaults(NotificationCompat.DEFAULT_SOUND).build();
+        mNotification.flags= Notification.FLAG_AUTO_CANCEL;
+       // mNotificationManager.notify(0, mNotification);
+
 
         return super.onStartCommand(intent,flags,startId);
     }
@@ -75,6 +94,10 @@ public class upDate extends Service {
             //如果返现msg.what=SHOW_RESPONSE，则进行制定操作，如想进行其他操作，则在子线程里将SHOW_RESPONSE改变
             String response = (String) msg.obj;
             String[] data=response.split(" ");
+          /*  if (sharedPreferenceHelper.getVersion()==Integer.parseInt(data[0]))
+                return;
+            else
+               sharedPreferenceHelper.setVersion(Integer.parseInt(data[0]));*/
 
             for (int i=2; i<data.length;)
 
@@ -82,14 +105,20 @@ public class upDate extends Service {
                 float noise = Float.parseFloat(data[i]);
                 String building= checkBuilding(data[i+1]);
                 String room=data[i+2];
-                if (sharedPreferenceHelper.getNotice()==1 && sharedPreferenceHelper.getPreferRoom().equals(new String( room)) && noise<=1)
-                {
+               if (sharedPreferenceHelper.getNotice()==1 && sharedPreferenceHelper.getPreferRoom().equals(new String( room)) && noise<1)
+               {
                     mNotificationManager.notify(0, mNotification);
+                }
+
+                if (sharedPreferenceHelper.getNotice()==0)
+                {
+                    mNotificationManager.cancel(0);
                 }
 
                // myDB.createRoom("SGW",building,room,noise);
                 myDB.updateRoom(building,room,noise);
                 myDB.addItem(building,room,noise);
+               // myDB.close();
 
                 i=i+3;
             }

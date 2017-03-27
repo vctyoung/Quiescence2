@@ -38,10 +38,10 @@ public class SharedPreferenceHelper {
         editor.putInt("update",i);
         editor.apply();
     }
-    public int getUpdate (Context context)
+    public int getUpdate ( )
     {
         int temp ;
-        temp =sharedPreferences.getInt("update",0);
+        temp =sharedPreferences.getInt("update",1);
         return temp;
     }
 
@@ -49,7 +49,7 @@ public class SharedPreferenceHelper {
     {
         SharedPreferences.Editor editor =sharedPreferences.edit();
         editor.putInt("allrooms",i);
-        editor.apply();
+        editor.commit();
     }
 
     public int getAllRoom( )
@@ -59,14 +59,14 @@ public class SharedPreferenceHelper {
         return temp;
     }
 
-    public void setNotification(Context context)
+    public void setNotification(int i)
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt("notice",1);
+        editor.putInt("notice",i);
         editor.apply();
     }
 
-    public void setPreferRoom(String room,Context context)
+    public void setPreferRoom(String room)
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("preroom",room);
@@ -76,7 +76,7 @@ public class SharedPreferenceHelper {
     public String getPreferRoom()
     {
         String temp ;
-        temp =sharedPreferences.getString("preroom",null);
+        temp =sharedPreferences.getString("preroom","h811");
         return temp;
     }
 
@@ -92,9 +92,25 @@ public class SharedPreferenceHelper {
     public void setInstallation()
     {
         SharedPreferences.Editor editor=sharedPreferences.edit();
-        editor.putInt("FirstInstall", 1);
+        editor.putBoolean("FirstInstall",false);
+        editor.apply();
+    }
+    public boolean getFirstInstallation()
+    {
+        return sharedPreferences.getBoolean("FirstInstall",true);
     }
 
+    public void setVersion(long version)
+    {
+        SharedPreferences.Editor editor=sharedPreferences.edit();
+        editor.putLong("Version",version);
+        editor.apply();
+    }
+
+    public long getVersion()
+    {
+        return sharedPreferences.getLong("Version",0);
+    }
 
 
     //TODO: return a profile to viewer
@@ -117,8 +133,5 @@ public class SharedPreferenceHelper {
         temp =sharedPreferences.getString("room",null);
         return temp;
     }
-    public int getFirstInstallation()
-    {
-        return sharedPreferences.getInt("FirstInstall",0);
-    }
+
 }

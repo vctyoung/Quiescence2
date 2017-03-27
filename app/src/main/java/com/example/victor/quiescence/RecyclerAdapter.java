@@ -6,6 +6,8 @@ package com.example.victor.quiescence;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,10 +38,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
         //  names=null;
     }
 
+
     class ViewHolder extends RecyclerView.ViewHolder{
 
-        //  private ImageView picture;
-        private TextView title,text;
+        //  private    ImageView picture;
+        private TextView title,text,time;
+        private ImageView noiseIndex;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -47,6 +51,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
             //    picture = (ImageView) itemView.findViewById(R.id.picture);
             title = (TextView) itemView.findViewById(R.id.title);
             text = (TextView) itemView.findViewById(R.id.text);
+            time=(TextView) itemView.findViewById(R.id.date);
+            noiseIndex=(ImageView) itemView.findViewById(R.id.imageView2);
+           // quietIndex=(ImageView) itemView.findViewById(R.id.imageView2);
 
             //  itemView.setOnClickListener(itemView.OnClickListener);
         }
@@ -62,6 +69,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
         public TextView getText(){
             return text;
         }
+
+        public TextView getTime(){
+            return time;
+        }
+
+        public ImageView getNoiseIndex(){return noiseIndex;};
     }
 
     @Override
@@ -74,16 +87,26 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
 
 
        String temp;
+        final ViewHolder vh = (ViewHolder) holder;
 
         if ( rooms.get(position).getLevel()==0)
+        {
             temp=" VERY QUIET";
+           // vh.getTitle().setTextColor(Color.rgb(226,201,89));
+            vh.getNoiseIndex().setImageResource(android.R.drawable.presence_online);
+            //vh.getNoiseIndex().setVisibility(View.VISIBLE);
+        }
         else
-           temp="NOISY";
-        final ViewHolder vh = (ViewHolder) holder;
+        {
+            temp="NOISY";
+            vh.getNoiseIndex().setImageResource(android.R.drawable.presence_busy);
+        }
+
         //   vh.getPicture().setImageResource(models.get(position).getPicture());
         vh.getTitle().setText(rooms.get(position).getName());
         vh.itemView.setTag(rooms.get(position).getName());
-        vh.getText().setText("Noise"+" "+"level:"+temp);
+        vh.getText().setText(temp);
+        vh.getTime().setText("      Updated:"+rooms.get(position).getTime());
         vh.itemView.setClickable(true);
         //vh.itemView.setOnClickListener(mOnItemClickListener);
 

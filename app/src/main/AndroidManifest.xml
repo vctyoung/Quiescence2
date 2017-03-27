@@ -27,6 +27,7 @@
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".History"
+
             android:parentActivityName=".Building" />
 
         <service
@@ -37,7 +38,10 @@
         <receiver
             android:name=".MyReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>
+            android:exported="true" />
+
+        <activity android:name=".Setting"
+            android:parentActivityName=".MainActivity"></activity>
     </application>
 
 </manifest>

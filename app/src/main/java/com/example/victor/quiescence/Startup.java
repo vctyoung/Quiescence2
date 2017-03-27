@@ -19,6 +19,7 @@ public class Startup extends AppCompatActivity {
     private Handler handler = new Handler();
     dataBaseHelper myDB= new dataBaseHelper(Startup.this);
     private Intent serviceIntent;
+    SharedPreferenceHelper sharedPreferenceHelper;
 
 
     @Override
@@ -28,9 +29,12 @@ public class Startup extends AppCompatActivity {
 //        NO Title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        sharedPreferenceHelper= new SharedPreferenceHelper(Startup.this);
         setContentView(R.layout.activity_startup);
         serviceIntent = new Intent(Startup.this, upDate.class);
-        startService(serviceIntent);
+
+       if (sharedPreferenceHelper.getUpdate()==1)
+           startService(serviceIntent);
 
        // sendRequestWithHttpURLConnection();
        /* try {
@@ -44,8 +48,11 @@ public class Startup extends AppCompatActivity {
          handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(Startup.this, MainActivity.class);
-                startActivity(intent);
+
+                    Intent intent = new Intent(Startup.this, MainActivity.class);
+                    startActivity(intent);
+
+
 
                 finish();
             }
