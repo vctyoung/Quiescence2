@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.SEND_RESPOND_VIA_MESSAGE" />
 
     <application
@@ -27,7 +28,6 @@
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".History"
-
             android:parentActivityName=".Building" />
 
         <service
@@ -40,8 +40,13 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".Setting"
-            android:parentActivityName=".MainActivity"></activity>
+        <activity
+            android:name=".Setting"
+            android:parentActivityName=".MainActivity" />
+        <activity android:name=".About"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+
     </application>
 
 </manifest>

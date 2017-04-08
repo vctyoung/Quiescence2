@@ -1,9 +1,14 @@
 package com.example.victor.quiescence;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
@@ -16,6 +21,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -41,6 +47,11 @@ public class Building extends AppCompatActivity {
     private AlertDialog alertDialog2;
     ArrayList<Room> rooms= new ArrayList<>();
     String response;
+    String currentRoom;
+    private AlertDialog information;
+    protected TextView counter;
+    protected CountDownTimer alertCounter;
+    private int countSwipe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +64,7 @@ public class Building extends AppCompatActivity {
         recycleListView= (RecyclerView) findViewById(R.id.recycler_view);
         campus= sharedPreferenceHelper.getCampus();
         building =sharedPreferenceHelper.getBuilding();
+        countSwipe=0;
         // if(campus=="Loyola" || campus=="SGW")
         //toolbar= new Toolbar(Building.this);
         getSupportActionBar().setTitle(campus+"--"+building) ;
@@ -64,14 +76,35 @@ public class Building extends AppCompatActivity {
       }*/
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+
         rooms= myDB.getRooms(building,sharedPreferenceHelper.getAllRoom());
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override public void onRefresh() {
-                //TODO show help
-                rooms= myDB.getRooms(building,sharedPreferenceHelper.getAllRoom());
-                showDescription();
-                recyclerAdapter.notifyDataSetChanged(); //获取完成
+                String old=rooms.get(0).getTime();
+       /*         if (!isWifi(Building.this))
+                {
+                    swipeRefreshLayout.setRefreshing(false);
+                    Toast.makeText(Building.this,"Check your connection.", Toast.LENGTH_SHORT).show();
+                    return;
+                }*/
+
+
+                rooms.clear();
+                rooms.addAll(myDB.getRooms(building,sharedPreferenceHelper.getAllRoom()));
+                recyclerAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
+
+                if (rooms.get(0).getTime().equals(old) && countSwipe<5)
+
+                {
+                    countSwipe++;
+                    Toast.makeText(Building.this,"No update.",Toast.LENGTH_SHORT).show();
+                }
+                if (countSwipe>=5)
+                {
+                    setOnfresh(recycleListView);
+                    countSwipe=0;
+                }
             }
         });
 
@@ -102,6 +135,7 @@ public class Building extends AppCompatActivity {
             public void onItemLongClick(View view, int position) {
                 if(view.getTag().toString().equals("---"))
                     return;
+                currentRoom=view.getTag().toString();
                 showSingleAlertDialog(view, view.getTag().toString());
 
             }
@@ -146,12 +180,12 @@ public class Building extends AppCompatActivity {
                         scanningDialog.setIndeterminate(true);
                         scanningDialog.setCanceledOnTouchOutside(false);
                         scanningDialog.show();
-                        showDescription();
+                        delay_operation();
+                        sendRequestWithHttpURLConnection();
+
                       //  Snackbar.make(view, "More details of " + currentRoom, Snackbar.LENGTH_INDEFINITE).show();
 
                 }
-
-
 
             }
         });
@@ -168,6 +202,47 @@ public class Building extends AppCompatActivity {
         alertDialog2.show();
     }
 
+    public void setOnfresh(View v) {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        counter=new TextView(this);
+        alertCounter = new CountDownTimer(6000, 1000)
+        {
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+                counter.setText("Calm down for: " + (millisUntilFinished / 1000) + " seconds");
+            }
+
+                @Override
+                public void onFinish() {
+               // alertContacts(danger_message);
+            }
+
+
+
+        };
+        alertCounter.start();
+        dialog.setView(counter);
+        // 正在加载
+        dialog.setTitle("Refresh too much!");
+        dialog.setMessage("Take a break.");
+
+        dialog.setIcon(android.R.drawable.ic_dialog_alert);
+                // 关闭'按钮点界面的自动取消'功能
+        dialog.setCancelable(false);
+
+        // 进度条效果
+        new Handler().postDelayed(new Runnable()
+        {
+            AlertDialog dialog1=dialog.show();
+            public void run()
+            {
+                dialog1.dismiss();//隐藏对话框
+            }
+        }, 6000);
+    }
+
     public  void getNotice (String room)
     {
          sharedPreferenceHelper.setPreferRoom(room);
@@ -176,7 +251,7 @@ public class Building extends AppCompatActivity {
 
 
 
-   /* public void delay_operation(long time)
+   public void delay_operation( )
     {
         new Handler().postDelayed(new Runnable()
         {
@@ -185,45 +260,26 @@ public class Building extends AppCompatActivity {
                 scanningDialog.dismiss();//隐藏对话框
             }
         }, 3000);
-    }*/
-
-    public void showDescription()
-    {
-
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                try {
-                    Thread.sleep(3000);
-                    // cancel和dismiss方法本质都是一样的，都是从屏幕中删除Dialog,唯一的区别是
-                    // 调用cancel方法会回调DialogInterface.OnCancelListener如果注册的话,dismiss方法不会回掉
-                    scanningDialog.cancel();
-                    // dialog.dismiss();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-            }
-        }).start();
-
     }
 
 
     public void decodehttp(String theRoom) {
 
+
+
         char[] charArray = response.toCharArray();
+       // if(charArray.length==0)
+       // {
+                //   return;
+        //}
         //Vector<String> allStrings;
-        String stringArray []={"","","","","","","",""};  // 2line *4 info per line
+        String stringArray []={"","","","","","","","","","","","","","","",""};  // 4line *4 info per line
         int GenaralCounter=1;//  keep up where we are in the string
         int numberOfCharactersCounter=0;// how much charcters is each peice of information
         //String s1="";
         int arrayFillCounter=0;
 
-
-        for (int i = 0; i < 2; i++)// 2 is the number of lines in the file
+        for (int i = 0; i < 4; i++)// 4 is the number of lines in the file
         {
             if( charArray[GenaralCounter-1]=='(' || charArray[GenaralCounter]=='(')// genral counter -1 is when it is =1 so 0 and the second is for the next line
             {
@@ -254,12 +310,11 @@ public class Building extends AppCompatActivity {
 
 
 
-        scanningDialog.dismiss();
         // all this is for the pop up dialog
         AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
         builderSingle.setTitle("Lab information");
 
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
 
 
@@ -297,59 +352,73 @@ public class Building extends AppCompatActivity {
     }
 
 
+
+
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
-            //如果返现msg.what=SHOW_RESPONSE，则进行制定操作，如想进行其他操作，则在子线程里将SHOW_RESPONSE改变
+            //濡傛灉杩旂幇msg.what=SHOW_RESPONSE锛屽垯杩涜鍒跺畾鎿嶄綔锛屽鎯宠繘琛屽叾浠栨搷浣滐紝鍒欏湪瀛愮嚎绋嬮噷灏哠HOW_RESPONSE鏀瑰彉
             switch (msg.what) {
                 case 0:
                     response = (String) msg.obj;
-                    //进行UI操作，将结果显示到界面上
-
-                    decodehttp("h-8xx");
+                    //杩涜UI鎿嶄綔锛屽皢缁撴灉鏄剧ず鍒扮晫闈笂
+                    decodehttp(currentRoom);
 
                     //responseText.setText(decodehttp());
                     // responseText.setText(response);
             }
         }
     };
-    private void sendRequestWithHttpURLConnection(){
-        String line=null;//开启线程来发起网络请求
+
+    private void sendRequestWithHttpURLConnection() {
+        String line = null;//寮€鍚嚎绋嬫潵鍙戣捣缃戠粶璇锋眰
+
         new Thread(new Runnable() {
             @Override
             public void run() {
-                HttpURLConnection connection=null;
-                try{
-                    URL url=new URL("https://users.encs.concordia.ca/~g_abourj/RoomInformation.txt");
-                    connection=(HttpURLConnection)url.openConnection();
+                HttpURLConnection connection = null;
+                try {
+                    URL url = new URL("https://users.encs.concordia.ca/~g_abourj/RoomInformation.txt");
+                    connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(8000);
                     connection.setReadTimeout(8000);
-
-                    InputStream in=connection.getInputStream();
-                    //下面对获取到的输入流进行读取
-                    BufferedReader bufr=new BufferedReader(new InputStreamReader(in));
-                    StringBuilder response=new StringBuilder();
-                    String line=null;
-                    while((line=bufr.readLine())!=null){
-                        response.append(line+" ");
+                    InputStream in = connection.getInputStream();
+                    //涓嬮潰瀵硅幏鍙栧埌鐨勮緭鍏ユ祦杩涜璇诲彇
+                    BufferedReader bufr = new BufferedReader(new InputStreamReader(in));
+                    StringBuilder response = new StringBuilder();
+                    String line = null;
+                    while ((line = bufr.readLine()) != null) {
+                        response.append(line);
                     }
 
-                    Message message=new Message();
-                    message.what=0;
-                    //将服务器返回的数据存放到Message中
-                    message.obj=response.toString();
+                    Message message = new Message();
+                    message.what = 0;
+                    //灏嗘湇鍔″櫒杩斿洖鐨勬暟鎹瓨鏀惧埌Message涓?
+                    message.obj = response.toString();
                     handler.sendMessage(message);
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
-                }finally {
-                    if(connection!=null){
+
+
+                } finally {
+                    if (connection != null) {
                         connection.disconnect();
                     }
                 }
             }
         }).start();
-    }
 
+    }
+    private static boolean isWifi(Context mContext) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) mContext
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetInfo != null
+                && activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+            return true;
+        }
+        return false;
+    }
 
 
 

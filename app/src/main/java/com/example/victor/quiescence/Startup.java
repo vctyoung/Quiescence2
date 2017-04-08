@@ -29,9 +29,10 @@ public class Startup extends AppCompatActivity {
 //        NO Title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        sharedPreferenceHelper= new SharedPreferenceHelper(Startup.this);
+
         setContentView(R.layout.activity_startup);
         serviceIntent = new Intent(Startup.this, upDate.class);
+        sharedPreferenceHelper= new SharedPreferenceHelper(Startup.this);
 
        if (sharedPreferenceHelper.getUpdate()==1)
            startService(serviceIntent);

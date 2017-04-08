@@ -31,7 +31,7 @@
         android:layout_alignParentStart="true" />
 
     <TextView
-        android:text='"1" means very noisy, "0" means very quiet.'
+        android:text='"2" means very noisy, "0" means very quiet.("1" is about 50dB.)'
         android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:id="@+id/textView"
@@ -48,6 +48,26 @@
         app:backgroundTint="@android:color/holo_green_light"
         android:layout_alignParentBottom="true"
         android:layout_toStartOf="@+id/textView"
-        android:layout_marginEnd="18dp" />
+        android:layout_marginEnd="18dp"
+        />
+
+    <TextView
+        android:text="Time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="22dp"
+        android:id="@+id/textView10" />
+
+    <TextView
+        android:text="Noise Level"
+        android:layout_width="50sp"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView9"
+        android:textDirection="inherit"
+        android:layout_alignBaseline="@+id/textView10"
+        android:layout_alignBottom="@+id/textView10"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

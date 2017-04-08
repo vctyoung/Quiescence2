@@ -96,13 +96,16 @@ public class dataBaseHelper extends SQLiteOpenHelper {
 
         // create new tables
         onCreate(db);
+      //  db.close();
     }
-    public void deleteTables() {
+    public void deleteTables( ) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROOM);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SCHEDULE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCATION);
+        db.close();
+
 
         // create new tables
        // onCreate(db);
@@ -218,7 +221,7 @@ public class dataBaseHelper extends SQLiteOpenHelper {
 
         if (c.moveToFirst()) {
             do {
-                if (c.getFloat(c.getColumnIndex(KEY_VOLLUM))<=noise)
+                if (c.getFloat(c.getColumnIndex(KEY_VOLLUM))< noise)
                 quietRooms.add(new Room(c.getString(c.getColumnIndex(KEY_TITLE)), (int) c.getFloat(c.getColumnIndex(KEY_VOLLUM)),c.getString(c.getColumnIndex(KEY_TIME))));
                // quietRooms.add(new Room(c.getString(c.getColumnIndex(KEY_TITLE)), (int) c.getFloat(c.getColumnIndex(KEY_VOLLUM))));
                 // temp="";

@@ -86,22 +86,27 @@ public class RecyclerAdapter extends RecyclerView.Adapter{
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
 
-       String temp;
+       String temp=null;
         final ViewHolder vh = (ViewHolder) holder;
 
-        if ( rooms.get(position).getLevel()==0)
-        {
-            temp=" VERY QUIET";
-           // vh.getTitle().setTextColor(Color.rgb(226,201,89));
-            vh.getNoiseIndex().setImageResource(android.R.drawable.presence_online);
-            //vh.getNoiseIndex().setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            temp="NOISY";
-            vh.getNoiseIndex().setImageResource(android.R.drawable.presence_busy);
-        }
+       switch (rooms.get(position).getLevel())
+       {
+           case 2:
+               temp = "AirPort";
+               vh.getNoiseIndex().setImageResource(android.R.drawable.presence_busy);
 
+               break;
+           case 1:
+               temp = "Conference";
+               vh.getNoiseIndex().setImageResource(android.R.drawable.presence_away);
+               break;
+           default:
+               temp=" Silence  ";
+               // vh.getTitle().setTextColor(Color.rgb(226,201,89));
+               vh.getNoiseIndex().setImageResource(android.R.drawable.presence_online);
+
+
+       }
         //   vh.getPicture().setImageResource(models.get(position).getPicture());
         vh.getTitle().setText(rooms.get(position).getName());
         vh.itemView.setTag(rooms.get(position).getName());

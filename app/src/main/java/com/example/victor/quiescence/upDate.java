@@ -73,7 +73,7 @@ public class upDate extends Service {
 
 
          mNotification = new Notification.Builder(this).
-                setSmallIcon(R.drawable.concordia_coa).setContentTitle("The room you are looking for is quiet now!")
+                setSmallIcon(R.drawable.concordia_coa).setContentTitle("The room "+sharedPreferenceHelper.getRoom()+" you are looking for is quiet now!")
                 .setContentText("Sent by Quiescence").setDefaults(NotificationCompat.DEFAULT_SOUND).build();
         mNotification.flags= Notification.FLAG_AUTO_CANCEL;
        // mNotificationManager.notify(0, mNotification);
@@ -98,6 +98,11 @@ public class upDate extends Service {
                 return;
             else
                sharedPreferenceHelper.setVersion(Integer.parseInt(data[0]));*/
+        /*    if (sharedPreferenceHelper.getDataDase()!=Integer.parseInt(data[1]))
+            {
+                myDB.deleteTables();
+                sharedPreferenceHelper.resetDataBase(Integer.parseInt(data[1]));
+            }*/
 
             for (int i=2; i<data.length;)
 

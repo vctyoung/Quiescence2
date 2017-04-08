@@ -58,7 +58,7 @@ public class History extends AppCompatActivity {
     FloatingActionButton fab;
      final int DATE_DIALOG = 1;
     private FloatingActionButton back;
-    private static  String[] ylabel= {"Quite","Noise"};
+   // private static  String[] ylabel= {"Quite","Noise"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -178,12 +178,12 @@ public class History extends AppCompatActivity {
         chart.setTouchEnabled(true);
 
 
-        LimitLine upper_limit = new LimitLine(2f, "Upper Limit");
+        LimitLine upper_limit = new LimitLine(3f, "Upper Limit");
         upper_limit.setLineWidth(1f);
         //  upper_limit.enableDashedLine(10f, 10f, 0f);
         upper_limit.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         upper_limit.setTextSize(10f);
-        LimitLine lower_limit = new LimitLine(0.5f, "Above is noisy.");
+        LimitLine lower_limit = new LimitLine(1f, "Above is noisy.");
         lower_limit.setLineWidth(4f);
         lower_limit.enableDashedLine(10f, 10f, 0f);
         lower_limit.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
@@ -215,7 +215,7 @@ public class History extends AppCompatActivity {
         leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
         leftAxis.addLimitLine(upper_limit);
         leftAxis.addLimitLine(lower_limit);
-        leftAxis.setAxisMaxValue(2f);
+        leftAxis.setAxisMaxValue(2.5f);
         leftAxis.setAxisMinValue(-0.5f);
         //leftAxis.setYOffset(20f);
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
@@ -228,8 +228,9 @@ public class History extends AppCompatActivity {
         chart.getAxisRight().setEnabled(false);
         chart.setTouchEnabled(true);
 
+
         chart.animateX(2500, Easing.EasingOption.EaseInOutQuart);
-        chart.notifyDataSetChanged();
+        //chart.notifyDataSetChanged();
 
         //  dont forget to refresh the drawing
         chart.invalidate();
@@ -265,6 +266,7 @@ public class History extends AppCompatActivity {
 
 
             set1.setFillAlpha(110);
+
             // set1.setFillColor(Color.RED);
 
             // set the line to be drawn like this "- - - - - -"
@@ -278,6 +280,8 @@ public class History extends AppCompatActivity {
             set1.setValueTextSize(12f);
             set1.setDrawFilled(false);
             set1.setDrawValues(false);
+          //  set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+
             ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
             dataSets.add(set1); // add the datasets
 
@@ -304,9 +308,9 @@ public class History extends AppCompatActivity {
         Log.i("Gesture", "END, lastGesture: " + lastPerformedGesture);
 
         // un-highlight values after the gesture is finished and no single-tap
-        if(lastPerformedGesture != ChartTouchListener.ChartGesture.SINGLE_TAP)
-            // or highlightTouch(null) for callback to onNothingSelected(...)
-            chart.highlightValues(null);
+    //    if(lastPerformedGesture != ChartTouchListener.ChartGesture.SINGLE_TAP)
+     //       // or highlightTouch(null) for callback to onNothingSelected(...)
+       //     chart.highlightValues(null);
     }
 
    // @Override
@@ -321,7 +325,7 @@ public class History extends AppCompatActivity {
 
    // @Override
     public void onChartSingleTapped(MotionEvent me) {
-        drawChart();Log.i("SingleTap", "Chart single-tapped.");
+      //  drawChart();Log.i("SingleTap", "Chart single-tapped.");
     }
 
    // @Override

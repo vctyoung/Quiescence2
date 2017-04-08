@@ -32,6 +32,20 @@ public class SharedPreferenceHelper {
         editor.apply();
 
     }
+
+    public void resetDataBase(int version)
+    {
+        SharedPreferences.Editor editor=sharedPreferences.edit();
+        editor.putInt("DBVersion", version);
+        editor.apply();
+    }
+
+    public int getDataDase ()
+    {
+        int temp ;
+        temp =sharedPreferences.getInt("DBVersion",1);
+        return temp;
+    }
     public void setAutoUpdate(int i)
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
